@@ -1,0 +1,8 @@
+@use "./styles/variables.scss" as *;
+
+body { font-family: var(--font-family, system-ui); background: radial-gradient(1200px 600px at 10% -10%, rgba(24,144,255,.08), transparent), radial-gradient(1200px 600px at 110% 10%, rgba(82,196,26,.08), transparent); }
+
+.fade-in { animation: fadeIn .35s ease both; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+.container { max-width: 1100px; margin: 0 auto; padding: 0 16px; }

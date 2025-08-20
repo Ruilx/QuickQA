@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>速答模式 - 快问快答</title>
+    <link rel="stylesheet" href="static/css/main.css">
+    <link rel="stylesheet" href="static/css/quiz.css">
+    <link rel="stylesheet" href="static/css/animations.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body class="quiz-body fade-in">
+    <!-- 背景动画 -->
+    <div class="bg-animation quiz-bg">
+        <div class="floating-particles"></div>
+    </div>
+
+    <!-- 头部信息栏 -->
+    <header class="quiz-header">
+        <div class="quiz-info">
+            <div class="quiz-mode">
+                <i class="icon-timer"></i>
+                <span>速答模式</span>
+            </div>
+            <div class="quiz-stats">
+                <div class="stat-item">
+                    <span class="stat-label">题目</span>
+                    <span class="stat-value" id="question-counter">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">正确</span>
+                    <span class="stat-value" id="correct-counter">0</span>
+                </div>
+                <div class="stat-item timer">
+                    <span class="stat-label">倒计时</span>
+                    <span class="stat-value countdown" id="countdown">60</span>
+                </div>
+            </div>
+        </div>
+        <button class="btn btn-warning btn-small" onclick="exitQuiz()">
+            <i class="icon-exit"></i>
+            退出
+        </button>
+    </header>
+
+    <!-- 主要答题区域 -->
+    <main class="quiz-main">
+        <!-- 准备阶段 -->
+        <div class="quiz-stage" id="prepare-stage">
+            <div class="prepare-content">
+                <div class="prepare-icon">
+                    <i class="icon-timer pulse"></i>
+                </div>
+                <h2>速答模式</h2>
+                <p>60秒内尽可能多地回答古诗词题目</p>
+                <div class="prepare-rules">
+                    <h3>规则说明：</h3>
+                    <ul>
+                        <li>60秒倒计时开始后，系统会随机出题</li>
+                        <li>选择答案后会立即显示正误并跳转下一题</li>
+                        <li>同一题目在本轮中只会出现一次</li>
+                        <li>时间结束后显示成绩和排名</li>
+                    </ul>
+                </div>
+                <button class="btn btn-large btn-primary" onclick="startSpeedQuiz()">
+                    <span>开始挑战</span>
+                    <i class="icon-play"></i>
+                </button>
+                <button class="btn btn-outline btn-large" onclick="window.location.href='index.html'">
+                    <i class="icon-home"></i>
+                    返回首页
+                </button>
+            </div>
+        </div>
+
+        <!-- 答题阶段 -->
+        <div class="quiz-stage hidden" id="quiz-stage">
+            <div class="question-container">
+                <div class="question-header">
+                    <h3 class="question-title" id="question-title"></h3>
+                </div>
+                
+                <div class="question-content" id="question-content">
+                    <!-- 题目内容 -->
+                </div>
+                
+                <div class="options-container" id="options-container">
+                    <!-- 选项将动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 结果阶段 -->
+        <div class="quiz-stage hidden" id="result-stage">
+            <div class="result-content">
+                <div class="result-icon">
+                    <i class="icon-trophy"></i>
+                </div>
+                <h2>挑战完成！</h2>
+                <div class="result-stats">
+                    <div class="result-stat">
+                        <span class="stat-number" id="final-correct">0</span>
+                        <span class="stat-label">答对题目</span>
+                    </div>
+                    <div class="result-stat">
+                        <span class="stat-number" id="final-total">0</span>
+                        <span class="stat-label">总题目数</span>
+                    </div>
+                    <div class="result-stat">
+                        <span class="stat-number" id="final-accuracy">0%</span>
+                        <span class="stat-label">正确率</span>
+                    </div>
+                </div>
+                
+                <div class="result-actions">
+                    <button class="btn btn-primary" onclick="viewQuizDetails()">
+                        <i class="icon-chart"></i>
+                        查看详情
+                    </button>
+                    <button class="btn btn-success" onclick="restartQuiz()">
+                        <i class="icon-refresh"></i>
+                        再来一次
+                    </button>
+                    <button class="btn btn-outline" onclick="window.location.href='leaderboard.html'">
+                        <i class="icon-trophy"></i>
+                        查看排行榜
+                    </button>
+                    <button class="btn btn-outline" onclick="window.location.href='index.html'">
+                        <i class="icon-home"></i>
+                        返回首页
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 答题详情模态框 -->
+    <div class="modal" id="details-modal">
+        <div class="modal-overlay" onclick="closeModal('details-modal')"></div>
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3>答题详情</h3>
+                <button class="modal-close" onclick="closeModal('details-modal')">&times;</button>
+            </div>
+            <div class="details-content" id="details-content">
+                <!-- 详情内容将动态加载 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 退出确认模态框 -->
+    <div class="modal" id="exit-modal">
+        <div class="modal-overlay" onclick="closeModal('exit-modal')"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>确认退出</h3>
+                <button class="modal-close" onclick="closeModal('exit-modal')">&times;</button>
+            </div>
+            <p>确定要退出当前答题吗？进度将不会保存。</p>
+            <div class="form-actions">
+                <button class="btn btn-outline" onclick="closeModal('exit-modal')">
+                    <i class="icon-close"></i>
+                    取消
+                </button>
+                <button class="btn btn-danger" onclick="confirmExit()">
+                    <i class="icon-exit"></i>
+                    确认退出
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 通知提示 -->
+    <div class="notification" id="notification">
+        <div class="notification-content">
+            <span class="notification-message" id="notification-message"></span>
+            <button class="notification-close" onclick="closeNotification()">&times;</button>
+        </div>
+    </div>
+
+    <!-- 脚本文件 -->
+    <script src="static/js/main.js"></script>
+    <script src="static/js/auth.js"></script>
+    <script src="static/js/quiz.js"></script>
+    <script src="static/js/speed-mode.js"></script>
+</body>
+</html>

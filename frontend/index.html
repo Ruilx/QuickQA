@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>快问快答 - 古诗词答题通关系统</title>
+    <link rel="stylesheet" href="../static/css/main.css">
+    <link rel="stylesheet" href="../static/css/animations.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body class="fade-in">
+    <!-- 背景动画 -->
+    <div class="bg-animation">
+        <div class="floating-particles"></div>
+    </div>
+
+    <!-- 导航栏 -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>快问快答</h2>
+                <span class="logo-subtitle">古诗词通关系统</span>
+            </div>
+            <div class="nav-menu" id="nav-menu">
+                <a href="#home" class="nav-link active">首页</a>
+                <a href="#features" class="nav-link">功能</a>
+                <a href="#leaderboard" class="nav-link">排行榜</a>
+                <div class="nav-auth" id="nav-auth">
+                    <button class="btn btn-outline" onclick="showLoginModal()">登录</button>
+                    <button class="btn btn-primary" onclick="showRegisterModal()">注册</button>
+                </div>
+                <div class="nav-user hidden" id="nav-user">
+                    <span class="username" id="username-display"></span>
+                    <button class="btn btn-outline" onclick="logout()">登出</button>
+                </div>
+            </div>
+            <div class="nav-toggle" id="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <main>
+        <!-- 首页英雄区域 -->
+        <section id="home" class="hero">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    <span class="highlight">古诗词</span>
+                    快问快答
+                </h1>
+                <p class="hero-subtitle">
+                    在快节奏的答题中感受古典诗词之美<br>
+                    挑战自我，登上排行榜巅峰
+                </p>
+                <div class="hero-buttons">
+                    <button class="btn btn-large btn-primary" onclick="startQuiz()">
+                        <span>开始答题</span>
+                        <i class="icon-play"></i>
+                    </button>
+                    <button class="btn btn-large btn-outline btn-leaderboard" onclick="window.location.href = 'leaderboard.html'">
+                        <span>查看排行榜</span>
+                        <i class="icon-trophy"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="floating-cards">
+                    <div class="card card-1" onclick="showPoetryDetail('静夜思', '床前明月光，疑是地上霜。举头望明月，低头思故乡。', '李白')">
+                        <div class="card-title">静夜思</div>
+                        <div class="card-content">床前明月光，疑是地上霜</div>
+                        <div class="card-author">— 李白</div>
+                    </div>
+                    <div class="card card-2" onclick="showPoetryDetail('望庐山瀑布', '日照香炉生紫烟，遥看瀑布挂前川。飞流直下三千尺，疑是银河落九天。', '李白')">
+                        <div class="card-title">望庐山瀑布</div>
+                        <div class="card-content">飞流直下三千尺</div>
+                        <div class="card-author">— 李白</div>
+                    </div>
+                    <div class="card card-3" onclick="showPoetryDetail('春晓', '春眠不觉晓，处处闻啼鸟。夜来风雨声，花落知多少。', '孟浩然')">
+                        <div class="card-title">春晓</div>
+                        <div class="card-content">春眠不觉晓，处处闻啼鸟</div>
+                        <div class="card-author">— 孟浩然</div>
+                    </div>
+                    <div class="card card-4" onclick="showPoetryDetail('咏鹅', '鹅，鹅，鹅，曲项向天歌。白毛浮绿水，红掌拨清波。', '骆宾王')">
+                        <div class="card-title">咏鹅</div>
+                        <div class="card-content">白毛浮绿水，红掌拨清波</div>
+                        <div class="card-author">— 骆宾王</div>
+                    </div>
+                    <div class="card card-5" onclick="showPoetryDetail('登鹳雀楼', '白日依山尽，黄河入海流。欲穷千里目，更上一层楼。', '王之涣')">
+                        <div class="card-title">登鹳雀楼</div>
+                        <div class="card-content">欲穷千里目，更上一层楼</div>
+                        <div class="card-author">— 王之涣</div>
+                    </div>
+                    <div class="card card-6" onclick="showPoetryDetail('悯农', '锄禾日当午，汗滴禾下土。谁知盘中餐，粒粒皆辛苦。', '李绅')">
+                        <div class="card-title">悯农</div>
+                        <div class="card-content">谁知盘中餐，粒粒皆辛苦</div>
+                        <div class="card-author">— 李绅</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 功能介绍 -->
+        <section id="features" class="features">
+            <div class="container">
+                <h2 class="section-title">两种答题模式</h2>
+                <div class="features-grid">
+                    <div class="feature-card speed-mode" onclick="selectMode('speed')">
+                        <div class="feature-icon">
+                            <i class="icon-timer"></i>
+                        </div>
+                        <h3>速答模式</h3>
+                        <p>60秒限时挑战，快速反应，争夺高分</p>
+                        <ul>
+                            <li>60秒倒计时</li>
+                            <li>即时反馈</li>
+                            <li>快速切题</li>
+                            <li>排行榜竞技</li>
+                        </ul>
+                        <button class="btn btn-primary">开始速答</button>
+                    </div>
+                    
+                    <div class="feature-card study-mode" onclick="selectMode('study')">
+                        <div class="feature-icon">
+                            <i class="icon-book"></i>
+                        </div>
+                        <h3>学习模式</h3>
+                        <p>无限时间，深度学习，详细解析</p>
+                        <ul>
+                            <li>无时间限制</li>
+                            <li>多次尝试</li>
+                            <li>详细解析</li>
+                            <li>自由切换</li>
+                        </ul>
+                        <button class="btn btn-outline">开始学习</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 排行榜预览 -->
+        <section id="leaderboard" class="leaderboard-preview">
+            <div class="container">
+                <h2 class="section-title">排行榜</h2>
+                <div class="leaderboard-tabs">
+                    <button class="tab-btn active" data-mode="speed">速答榜</button>
+                    <button class="tab-btn" data-mode="study">学习榜</button>
+                </div>
+                <div class="leaderboard-content" id="leaderboard-content">
+                    <!-- 排行榜内容将通过JavaScript动态加载 -->
+                </div>
+                <button class="btn btn-outline" onclick="window.location.href='leaderboard.html'">
+                    查看完整排行榜
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- 登录模态框 -->
+    <div class="modal" id="login-modal">
+        <div class="modal-overlay" onclick="closeModal('login-modal')"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>用户登录</h3>
+                <button class="modal-close" onclick="closeModal('login-modal')">&times;</button>
+            </div>
+            <form id="login-form" onsubmit="login(event)">
+                <div class="form-group">
+                    <label for="login-username">用户名</label>
+                    <input type="text" id="login-username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">密码</label>
+                    <input type="password" id="login-password" name="password" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('login-modal')">取消</button>
+                    <button type="submit" class="btn btn-primary">登录</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 注册模态框 -->
+    <div class="modal" id="register-modal">
+        <div class="modal-overlay" onclick="closeModal('register-modal')"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>用户注册</h3>
+                <button class="modal-close" onclick="closeModal('register-modal')">&times;</button>
+            </div>
+            <form id="register-form" onsubmit="register(event)">
+                <div class="form-group">
+                    <label for="register-username">用户名</label>
+                    <input type="text" id="register-username" name="username" required minlength="3">
+                    <small>至少3个字符</small>
+                </div>
+                <div class="form-group">
+                    <label for="register-email">邮箱（可选）</label>
+                    <input type="email" id="register-email" name="email">
+                </div>
+                <div class="form-group">
+                    <label for="register-password">密码</label>
+                    <input type="password" id="register-password" name="password" required minlength="6">
+                    <small>至少6个字符</small>
+                </div>
+                <div class="form-group">
+                    <label for="register-confirm-password">确认密码</label>
+                    <input type="password" id="register-confirm-password" name="confirm-password" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('register-modal')">取消</button>
+                    <button type="submit" class="btn btn-primary">注册</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 答题模式选择模态框 -->
+    <div class="modal" id="mode-modal">
+        <div class="modal-overlay" onclick="closeModal('mode-modal')"></div>
+        <div class="modal-content mode-selection">
+            <div class="modal-header">
+                <h3>选择答题模式</h3>
+                <button class="modal-close" onclick="closeModal('mode-modal')">&times;</button>
+            </div>
+            <div class="mode-options">
+                <div class="mode-option" onclick="startModeQuiz('speed')">
+                    <div class="mode-icon speed">
+                        <i class="icon-timer"></i>
+                    </div>
+                    <h4>速答模式</h4>
+                    <p>60秒极限挑战</p>
+                </div>
+                <div class="mode-option" onclick="startModeQuiz('study')">
+                    <div class="mode-icon study">
+                        <i class="icon-book"></i>
+                    </div>
+                    <h4>学习模式</h4>
+                    <p>无限时间学习</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 古诗详情模态框 -->
+    <div id="poetry-modal" class="modal">
+        <div class="modal-content poetry-modal-content">
+            <div class="modal-header">
+                <h2 id="poetry-title">诗词标题</h2>
+                <button class="modal-close" onclick="closeModal('poetry-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="poetry-content">
+                    <div id="poetry-text" class="poetry-text"></div>
+                    <div id="poetry-author" class="poetry-author"></div>
+                </div>
+                <div class="poetry-actions">
+                    <button class="btn btn-primary" onclick="startQuizFromPoetry()">
+                        <i class="icon-play"></i>
+                        练习此类诗词
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 通知提示 -->
+    <div class="notification" id="notification">
+        <div class="notification-content">
+            <span class="notification-message" id="notification-message"></span>
+            <button class="notification-close" onclick="closeNotification()">&times;</button>
+        </div>
+    </div>
+
+    <!-- 脚本文件 -->
+    <script src="static/js/main.js"></script>
+    <script src="static/js/auth.js"></script>
+</body>
+</html>

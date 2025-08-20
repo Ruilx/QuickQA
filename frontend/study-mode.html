@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学习模式 - 快问快答</title>
+    <link rel="stylesheet" href="static/css/main.css">
+    <link rel="stylesheet" href="static/css/quiz.css">
+    <link rel="stylesheet" href="static/css/animations.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body class="quiz-body study-mode-body fade-in">
+    <!-- 背景动画 -->
+    <div class="bg-animation quiz-bg study-bg">
+        <div class="floating-particles"></div>
+    </div>
+
+    <!-- 头部信息栏 -->
+    <header class="quiz-header study-header">
+        <div class="quiz-info">
+            <div class="quiz-mode">
+                <i class="icon-book"></i>
+                <span>学习模式</span>
+            </div>
+            <div class="quiz-stats">
+                <div class="stat-item">
+                    <span class="stat-label">已学习</span>
+                    <span class="stat-value" id="studied-counter">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">用时</span>
+                    <span class="stat-value" id="time-counter">00:00</span>
+                </div>
+            </div>
+        </div>
+        <button class="btn btn-warning btn-small" onclick="exitStudy()">
+            <i class="icon-exit"></i>
+            退出学习
+        </button>
+    </header>
+
+    <!-- 主要学习区域 -->
+    <main class="quiz-main study-main">
+        <!-- 准备阶段 -->
+        <div class="quiz-stage" id="prepare-stage">
+            <div class="prepare-content">
+                <div class="prepare-icon">
+                    <i class="icon-book pulse"></i>
+                </div>
+                <h2>学习模式</h2>
+                <p>慢慢品味古诗词之美，深度学习每一首诗</p>
+                <div class="prepare-rules">
+                    <h3>学习特色：</h3>
+                    <ul>
+                        <li>无时间限制，可以慢慢思考</li>
+                        <li>每题最多可以尝试3次</li>
+                        <li>错误后会显示正确答案和详细解析</li>
+                        <li>可以随时查看上一题或下一题</li>
+                        <li>退出时会显示本次学习统计</li>
+                    </ul>
+                </div>
+                <button class="btn btn-large btn-primary" onclick="startStudyMode()">
+                    <span>开始学习</span>
+                    <i class="icon-play"></i>
+                </button>
+                <button class="btn btn-outline btn-large" onclick="window.location.href='index.html'">
+                    <i class="icon-home"></i>
+                    返回首页
+                </button>
+            </div>
+        </div>
+
+        <!-- 学习阶段 -->
+        <div class="quiz-stage hidden" id="study-stage">
+            <div class="question-container study-container">
+                <div class="question-header">
+                    <h3 class="question-title" id="question-title"></h3>
+                    <div class="question-meta">
+                        <span class="question-difficulty" id="question-difficulty"></span>
+                        <span class="question-tags" id="question-tags"></span>
+                    </div>
+                </div>
+                
+                <div class="question-content" id="question-content">
+                    <!-- 题目内容 -->
+                </div>
+                
+                <div class="options-container study-options" id="options-container">
+                    <!-- 选项将动态生成 -->
+                </div>
+
+                <div class="attempt-info" id="attempt-info">
+                    <span>尝试次数：<span id="attempt-count">1</span>/3</span>
+                </div>
+
+                <!-- 解析区域 -->
+                <div class="explanation-container hidden" id="explanation-container">
+                    <div class="explanation-header">
+                        <h4>详细解析</h4>
+                    </div>
+                    <div class="explanation-content" id="explanation-content">
+                        <!-- 解析内容 -->
+                    </div>
+                </div>
+
+                <!-- 导航按钮 -->
+                <div class="question-navigation">
+                    <button class="btn btn-outline btn-large" id="prev-btn" onclick="previousQuestion()" disabled>
+                        <i class="icon-arrow-left"></i>
+                        上一题
+                    </button>
+                    <button class="btn btn-success btn-large" id="next-btn" onclick="nextQuestion()" disabled>
+                        下一题
+                        <i class="icon-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 学习总结阶段 -->
+        <div class="quiz-stage hidden" id="summary-stage">
+            <div class="result-content study-summary">
+                <div class="result-icon">
+                    <i class="icon-graduation"></i>
+                </div>
+                <h2>学习完成！</h2>
+                <div class="study-stats">
+                    <div class="study-stat">
+                        <span class="stat-number" id="total-studied">0</span>
+                        <span class="stat-label">学习题目</span>
+                    </div>
+                    <div class="study-stat">
+                        <span class="stat-number" id="total-time">00:00</span>
+                        <span class="stat-label">学习时长</span>
+                    </div>
+                    <div class="study-stat">
+                        <span class="stat-number" id="mastery-rate">0%</span>
+                        <span class="stat-label">掌握率</span>
+                    </div>
+                </div>
+                
+                <div class="learning-insights">
+                    <h3>学习洞察</h3>
+                    <div class="insights-grid" id="insights-grid">
+                        <!-- 学习洞察内容 -->
+                    </div>
+                </div>
+                
+                <div class="result-actions">
+                    <button class="btn btn-success" onclick="continueStudy()">
+                        <i class="icon-play"></i>
+                        继续学习
+                    </button>
+                    <button class="btn btn-primary" onclick="viewStudyHistory()">
+                        <i class="icon-history"></i>
+                        学习记录
+                    </button>
+                    <button class="btn btn-outline" onclick="window.location.href='leaderboard.html'">
+                        <i class="icon-trophy"></i>
+                        查看排行榜
+                    </button>
+                    <button class="btn btn-outline" onclick="window.location.href='index.html'">
+                        <i class="icon-home"></i>
+                        返回首页
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 学习记录模态框 -->
+    <div class="modal" id="history-modal">
+        <div class="modal-overlay" onclick="closeModal('history-modal')"></div>
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3>学习记录</h3>
+                <button class="modal-close" onclick="closeModal('history-modal')">&times;</button>
+            </div>
+            <div class="history-content" id="history-content">
+                <!-- 学习记录内容将动态加载 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 退出确认模态框 -->
+    <div class="modal" id="exit-modal">
+        <div class="modal-overlay" onclick="closeModal('exit-modal')"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>确认退出学习</h3>
+                <button class="modal-close" onclick="closeModal('exit-modal')">&times;</button>
+            </div>
+            <div class="exit-summary">
+                <p>本次学习统计：</p>
+                <div class="exit-stats">
+                    <div class="exit-stat">
+                        <span class="label">已学习：</span>
+                        <span class="value" id="exit-studied">0 题</span>
+                    </div>
+                    <div class="exit-stat">
+                        <span class="label">用时：</span>
+                        <span class="value" id="exit-time">00:00</span>
+                    </div>
+                </div>
+                <p>确定要退出学习吗？</p>
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-success" onclick="closeModal('exit-modal')">
+                    <i class="icon-play"></i>
+                    继续学习
+                </button>
+                <button class="btn btn-danger" onclick="confirmExitStudy()">
+                    <i class="icon-exit"></i>
+                    确认退出
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 通知提示 -->
+    <div class="notification" id="notification">
+        <div class="notification-content">
+            <span class="notification-message" id="notification-message"></span>
+            <button class="notification-close" onclick="closeNotification()">&times;</button>
+        </div>
+    </div>
+
+    <!-- 脚本文件 -->
+    <script src="static/js/main.js"></script>
+    <script src="static/js/auth.js"></script>
+    <script src="static/js/quiz.js"></script>
+    <script src="static/js/study-mode.js"></script>
+</body>
+</html>
