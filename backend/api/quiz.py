@@ -89,14 +89,33 @@ def register_quiz_routes(app):
                     return jsonify({'error': '无效的选项'}), 400
                 
                 is_correct = bool(option['is_correct'])
-                
-                # 记录答题
-                conn.execute("""
-                    INSERT INTO question_answers 
-                    (quiz_record_id, question_id, selected_option_id, is_correct, attempt_count, time_taken)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                """, (quiz_record_id, question_id, selected_option_id, is_correct, attempt_count, time_taken))
-                
+                # 记录答题（同一题目在同一次答题记录中只保留一行，累计尝试次数与用时）
+                existing = conn.execute(
+                    "SELECT id, attempt_count, time_taken FROM question_answers WHERE quiz_record_id = ? AND question_id = ?",
+                    (quiz_record_id, question_id)
+                ).fetchone()
+
+                if existing:
+                    new_attempts = (existing['attempt_count'] or 0) + 1
+                    new_time = (existing['time_taken'] or 0) + (time_taken or 0)
+                    conn.execute(
+                        """
+                        UPDATE question_answers
+                        SET selected_option_id = ?, is_correct = ?, attempt_count = ?, time_taken = ?
+                        WHERE id = ?
+                        """,
+                        (selected_option_id, is_correct, new_attempts, new_time, existing['id'])
+                    )
+                else:
+                    conn.execute(
+                        """
+                        INSERT INTO question_answers 
+                        (quiz_record_id, question_id, selected_option_id, is_correct, attempt_count, time_taken)
+                        VALUES (?, ?, ?, ?, ?, ?)
+                        """,
+                        (quiz_record_id, question_id, selected_option_id, is_correct, max(1, int(attempt_count or 1)), time_taken)
+                    )
+
                 conn.commit()
                 
                 return jsonify({
@@ -133,7 +152,7 @@ def register_quiz_routes(app):
                 # 计算统计信息
                 cursor = conn.execute("""
                     SELECT 
-                        COUNT(*) as total_questions,
+                        COUNT(DISTINCT question_id) as total_questions,
                         SUM(CASE WHEN is_correct THEN 1 ELSE 0 END) as correct_answers
                     FROM question_answers 
                     WHERE quiz_record_id = ?
@@ -142,7 +161,8 @@ def register_quiz_routes(app):
                 stats = cursor.fetchone()
                 
                 # 计算用时（秒）
-                start_time = datetime.datetime.fromisoformat(record['start_time'])
+                # 兼容 SQLite 默认格式（空格/"T" 分隔）
+                start_time = datetime.datetime.fromisoformat(str(record['start_time']).replace(' ', 'T'))
                 end_time = datetime.datetime.now()
                 time_spent = int((end_time - start_time).total_seconds())
                 

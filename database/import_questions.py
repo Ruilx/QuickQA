@@ -11,7 +11,7 @@ import json
 from datetime import datetime
 
 class QuestionImporter:
-    def __init__(self, db_path='questions.db'):
+    def __init__(self, db_path='database/quiz_app.db'):
         self.db_path = db_path
         self.conn = None
         self.cursor = None
@@ -62,6 +62,31 @@ class QuestionImporter:
                 
         return questions
     
+    def _clean_text(self, text: str) -> str:
+        """通用清洗：去除**标记与多余空白"""
+        if not text:
+            return ''
+        t = re.sub(r"\*+", "", text)
+        t = re.sub(r"\s+", " ", t).strip()
+        return t
+
+    def _clean_explanation(self, explanation: str, correct_text: str) -> str:
+        """清洗详解：
+        - 去除ABCD前缀与**
+        - 去除开头的“这道题选择 …”重复表述
+        - 将正确项统一加上中文引号
+        """
+        exp = self._clean_text(explanation)
+        # 去掉类似“这道题选择 …”的冗余前缀
+        exp = re.sub(r"^(这道题选择[:：]?)([A-D][\.、\)]\s*)?", "", exp)
+        # 若正文中有“这道题选择 …”再出现，也移除一次
+        exp = re.sub(r"这道题选择[:：]?[A-D]?[\.、\)]?\s*", "", exp)
+        # 去除ABCD. 前缀
+        exp = re.sub(r"^[A-D][\.、\)]\s*", "", exp)
+        # 不再添加“这道题选择：xxx”前缀，避免前端重复；同时规范多层引号
+        exp = re.sub(r'“+([^”]+)”+', r'“\1”', exp)
+        return exp.strip()
+
     def parse_question_content(self, content, title, dynasty):
         """解析单个题目内容"""
         lines = content.split('\n')
@@ -111,12 +136,19 @@ class QuestionImporter:
             print(f"解析失败: {title}")
             return None
             
+        # 计算正确选项文字
+        correct_text = None
+        for opt in options:
+            if opt['letter'] == correct_answer:
+                correct_text = self._clean_text(opt['text'])
+        cleaned_explanation = self._clean_explanation(explanation or '', correct_text or '')
+
         return {
             'title': f"《{title}》 {dynasty}",
-            'content': question_text,
-            'options': options,
+            'content': self._clean_text(question_text),
+            'options': [{ 'letter': o['letter'], 'text': self._clean_text(o['text']) } for o in options],
             'correct_answer': correct_answer,
-            'explanation': explanation
+            'explanation': cleaned_explanation
         }
     
     def insert_question(self, question_data):
@@ -168,7 +200,21 @@ class QuestionImporter:
             print(f"插入题目失败: {question_data['title']}, 错误: {e}")
             return None
     
-    def import_questions(self, file_path):
+    def purge_subject(self, subject_name='语文'):
+        """清空某学科的题目与选项（谨慎）"""
+        self.cursor.execute("SELECT id FROM subjects WHERE name = ?", (subject_name,))
+        row = self.cursor.fetchone()
+        if not row:
+            return
+        subject_id = row[0]
+        self.cursor.execute("SELECT id FROM questions WHERE subject_id = ?", (subject_id,))
+        qids = [r[0] for r in self.cursor.fetchall()]
+        if qids:
+            self.cursor.executemany("DELETE FROM options WHERE question_id = ?", [(qid,) for qid in qids])
+        self.cursor.execute("DELETE FROM questions WHERE subject_id = ?", (subject_id,))
+        self.conn.commit()
+
+    def import_questions(self, file_path, reset=False):
         """导入题目"""
         print("开始导入题目...")
         
@@ -177,6 +223,10 @@ class QuestionImporter:
         
         # 初始化数据库
         self.init_database()
+        
+        if reset:
+            print("清空原有语文题目...")
+            self.purge_subject('语文')
         
         # 解析题目文件
         questions = self.parse_question_file(file_path)

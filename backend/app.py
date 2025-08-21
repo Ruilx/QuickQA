@@ -70,35 +70,56 @@ def not_found(error):
 def internal_error(error):
     return jsonify({'error': 'Internal server error'}), 500
 
-# 静态文件服务
+def _dist_root():
+    """返回前端构建产物目录(frontend/dist)"""
+    candidates = [
+        os.path.join('..', 'frontend', 'dist'),
+        os.path.join('frontend', 'dist'),
+    ]
+    for p in candidates:
+        if os.path.exists(p):
+            return p
+    return None
+
+# 静态文件服务（旧 /static 兼容，可留存）
 @app.route('/static/<path:filename>')
 def serve_static(filename):
-    """专门处理静态文件"""
     static_path = '../static' if os.path.exists('../static') else 'static'
-    
     file_path = os.path.join(static_path, filename)
     if os.path.exists(file_path):
         return send_from_directory(static_path, filename)
-    else:
-        return jsonify({'error': 'Static file not found'}), 404
+    return jsonify({'error': 'Static file not found'}), 404
 
 @app.route('/')
 def index():
-    """主页"""
-    frontend_path = '../frontend' if os.path.exists('../frontend') else 'frontend'
-    return send_from_directory(frontend_path, 'index.html')
+    """主页：优先返回 Vue 构建产物，其次才尝试旧前端（已准备删除）"""
+    dist = _dist_root()
+    if dist and os.path.exists(os.path.join(dist, 'index.html')):
+        return send_from_directory(dist, 'index.html')
+    # 兼容：若仍存在旧的 frontend 目录
+    fallback_path = '../frontend' if os.path.exists('../frontend') else 'frontend'
+    if os.path.exists(os.path.join(fallback_path, 'index.html')):
+        return send_from_directory(fallback_path, 'index.html')
+    return jsonify({'error': 'Frontend not built. 请运行前端构建(frontend)'}), 404
+
+@app.route('/assets/<path:filename>')
+def serve_assets(filename):
+    """服务 Vue 构建产物中的静态资源 /assets/*"""
+    dist = _dist_root()
+    if not dist:
+        return jsonify({'error': 'Frontend dist not found'}), 404
+    assets_root = os.path.join(dist, 'assets')
+    file_path = os.path.join(assets_root, filename)
+    if os.path.exists(file_path):
+        return send_from_directory(assets_root, filename)
+    return jsonify({'error': 'Asset not found'}), 404
 
 @app.route('/<path:filename>')
 def static_files(filename):
-    """前端文件服务"""
-    # 确定正确的路径
-    frontend_path = '../frontend' if os.path.exists('../frontend') else 'frontend'
-    
-    # 只处理前端HTML文件，静态文件由专用路由处理
-    if filename.endswith('.html') or '.' not in filename:
-        if os.path.exists(os.path.join(frontend_path, filename)):
-            return send_from_directory(frontend_path, filename)
-    
+    """兜底：服务前端构建文件"""
+    dist = _dist_root()
+    if dist and os.path.exists(os.path.join(dist, filename)):
+        return send_from_directory(dist, filename)
     return jsonify({'error': 'File not found'}), 404
 
 # =============================================================================

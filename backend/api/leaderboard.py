@@ -25,11 +25,30 @@ def register_leaderboard_routes(app):
             limit = min(int(request.args.get('limit', 50)), 100)  # 最多100条
             
             with get_db() as conn:
+                # 取每个用户的最佳成绩：正确数最多，其次用时最少，最后时间最近
                 cursor = conn.execute("""
-                    SELECT username, user_id, correct_answers, total_questions, 
-                           time_spent, accuracy, created_at, rank
-                    FROM speed_leaderboard
-                    ORDER BY rank
+                    SELECT 
+                        ROW_NUMBER() OVER (ORDER BY t.correct_answers DESC, t.time_spent ASC, t.created_at DESC) as rank,
+                        t.username, t.user_id, t.correct_answers, t.total_questions, t.time_spent, t.accuracy, t.created_at
+                    FROM (
+                        SELECT 
+                            u.username,
+                            u.id as user_id,
+                            qr.correct_answers,
+                            qr.total_questions,
+                            qr.time_spent,
+                            ROUND(qr.correct_answers * 100.0 / qr.total_questions, 2) as accuracy,
+                            qr.created_at,
+                            ROW_NUMBER() OVER (
+                                PARTITION BY u.id
+                                ORDER BY qr.correct_answers DESC, qr.time_spent ASC, qr.created_at DESC
+                            ) as rn
+                        FROM quiz_records qr
+                        JOIN users u ON qr.user_id = u.id
+                        WHERE qr.mode = 'speed' AND qr.completed = TRUE
+                    ) t
+                    WHERE t.rn = 1
+                    ORDER BY t.correct_answers DESC, t.time_spent ASC, t.created_at DESC
                     LIMIT ?
                 """, (limit,))
                 
@@ -64,10 +83,26 @@ def register_leaderboard_routes(app):
             
             with get_db() as conn:
                 cursor = conn.execute("""
-                    SELECT username, user_id, total_questions, time_spent, 
-                           created_at, rank
-                    FROM study_leaderboard
-                    ORDER BY rank
+                    SELECT 
+                        ROW_NUMBER() OVER (ORDER BY t.total_questions DESC, t.time_spent DESC, t.created_at DESC) as rank,
+                        t.username, t.user_id, t.total_questions, t.time_spent, t.created_at
+                    FROM (
+                        SELECT 
+                            u.username,
+                            u.id as user_id,
+                            qr.total_questions,
+                            qr.time_spent,
+                            qr.created_at,
+                            ROW_NUMBER() OVER (
+                                PARTITION BY u.id
+                                ORDER BY qr.total_questions DESC, qr.time_spent DESC, qr.created_at DESC
+                            ) as rn
+                        FROM quiz_records qr
+                        JOIN users u ON qr.user_id = u.id
+                        WHERE qr.mode = 'study' AND qr.completed = TRUE
+                    ) t
+                    WHERE t.rn = 1
+                    ORDER BY t.total_questions DESC, t.time_spent DESC, t.created_at DESC
                     LIMIT ?
                 """, (limit,))
                 

@@ -32,7 +32,6 @@ onMounted(() => {
         <div class="actions">
           <a-space>
             <a-button type="link" @click="$router.push('/leaderboard')">排行榜</a-button>
-            <a-button type="primary" @click="$router.push('/speed')">开始答题</a-button>
             <template v-if="!auth.isLoggedIn">
               <a-button @click="loginVisible=true">登录</a-button>
               <a-button type="dashed" @click="registerVisible=true">注册</a-button>

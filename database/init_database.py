@@ -49,7 +49,7 @@ def init_database(db_path='database/quiz_app.db'):
             
             # 使用导入器导入数据
             importer = QuestionImporter(db_path)
-            importer.import_questions('小学古诗词专项练习.txt')
+            importer.import_questions('小学古诗词专项练习.txt', reset=True)
             
             # 重新连接
             conn = sqlite3.connect(db_path)

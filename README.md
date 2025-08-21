@@ -1,196 +1,68 @@
-# 快问快答 - 古诗词答题通关系统
+# 快问快答 - 古诗词答题通关系统（精简版）
 
 ## 🎉 系统介绍
 
-这是一个完整的古诗词答题通关网页系统，具备美观高级动态设计感，包含用户系统、两种答题模式、排行榜等完整功能。
+前后端分离：后端 Flask + SQLite + JWT；前端 Ant Design Vue + Vue3（Vite 构建）。保留必要模块与统一启动脚本，目录简洁。
 
-### ✨ 主要特色
+## 🚀 一键启动
 
-- 🎯 **两种答题模式**: 60 秒速答挑战 + 无限时学习模式
-- 👥 **完整用户系统**: 注册、登录、个人统计
-- 🏆 **实时排行榜**: 速答榜和学习榜双榜竞技
-- 🎨 **精美界面**: 渐变背景、流畅动画、响应式设计
-- 📚 **79 道古诗词题目**: 完整的选项随机排列系统
-- 🔧 **高度扩展性**: 支持后续添加其他科目
-
-## 🚀 快速开始
-
-### 环境要求
-
-- Python 3.7+
-- 现代浏览器
-
-### 安装和启动
-
-1. **安装 Python 依赖**:
-
-   ```bash
-   pip3 install -r requirements.txt
-   ```
-
-2. **初始化数据库** (如果首次运行):
-
-   ```bash
-   python3 database/init_database.py
-   ```
-
-3. **启动系统**:
-
-   ```bash
-   cd backend
-   python3 app.py
-   ```
-
-4. **访问系统**:
-   打开浏览器访问 `http://localhost:8000`
-
-### 🎮 使用指南
-
-1. **注册账户**: 使用用户名和密码注册新账户
-2. **选择模式**:
-   - **速答模式**: 60 秒内尽可能多答题，挑战排行榜
-   - **学习模式**: 慢慢学习，每题 3 次机会，详细解析
-3. **查看成绩**: 在排行榜页面查看自己的排名和统计
-
-## 📁 项目结构
-
-```
-Quick Q&A/
-├── backend/                 # 🔧 后端代码
-│   ├── app.py              # Flask主应用
-│   └── api/                # API接口模块
-├── frontend/               # 🎨 前端页面
-│   ├── index.html         # 主页
-│   ├── speed-mode.html    # 速答模式
-│   ├── study-mode.html    # 学习模式
-│   └── leaderboard.html   # 排行榜
-├── static/                 # 📦 静态资源
-│   ├── css/               # 样式文件
-│   └── js/                # JavaScript文件
-├── database/               # 🗄️ 数据库
-│   ├── quiz_app.db        # SQLite数据库
-│   └── *.py               # 数据库脚本
-└── docs/                  # 📚 文档
+```bash
+./启动系统.sh
 ```
 
-## 🔧 技术栈
+脚本行为：
 
-### 后端
+- 安装 Python 依赖；
+- 初始化数据库（如需）；
+- 构建前端（如未构建）；
+- 启动后端（http://localhost:8000）。
 
-- **Python Flask**: RESTful API
-- **SQLite**: 轻量级数据库
-- **JWT**: 用户认证
+## 📁 项目结构（已精简）
 
-### 前端
-
-- **HTML5 + CSS3**: 现代化界面
-- **JavaScript ES6+**: 交互逻辑
-- **响应式设计**: 移动端适配
-
-## 🎯 功能特色
-
-### 速答模式
-
-- ⏱️ 60 秒倒计时挑战
-- ⚡ 快速反馈（红绿色）
-- 🔄 题目不重复出现
-- 🏃‍♂️ 自动跳转下一题
-
-### 学习模式
-
-- 🕐 无时间限制
-- 🔄 每题最多 3 次尝试
-- 💡 详细古诗词解析
-- 📖 自由上下题切换
-
-### 排行榜系统
-
-- 🥇 速答排行榜（按答对数+用时）
-- 📚 学习排行榜（按学习题数）
-- 📊 个人统计和最佳成绩
-- 🔄 实时更新
-
-## 🎨 界面设计
-
-- **现代化 UI**: 渐变背景、毛玻璃效果
-- **流畅动画**: CSS3 动画 + JavaScript 交互
-- **响应式**: 完美适配桌面和移动端
-- **用户体验**: 直观操作，即时反馈
-
-## 📊 数据库设计
-
-### 核心表结构
-
-- `users`: 用户信息
-- `questions`: 题目库（79 道古诗词）
-- `options`: 选项（支持随机排列）
-- `quiz_records`: 答题记录
-- `question_answers`: 单题答案记录
-
-### 特色功能
-
-- 🎲 **真随机选项**: ABCD 位置每次都不同
-- 📈 **自动统计**: 触发器自动更新用户统计
-- 🔍 **排行榜视图**: 实时计算排名
-- 📋 **完整记录**: 每次答题的详细记录
-
-## 🔮 扩展性
-
-系统设计具有高度扩展性，可以轻松添加：
-
-- 📚 **新科目**: 数学、英语、历史等
-- 📝 **新题型**: 填空题、判断题、多选题
-- 🎮 **新模式**: 闯关模式、PK 模式等
-- 🤝 **社交功能**: 好友系统、团队竞赛
-
-## 📝 开发说明
-
-### API 接口
-
-- `POST /api/register`: 用户注册
-- `POST /api/login`: 用户登录
-- `GET /api/questions/random`: 获取随机题目
-- `POST /api/quiz/start`: 开始答题
-- `POST /api/quiz/submit-answer`: 提交答案
-- `GET /api/leaderboard/speed`: 速答排行榜
-
-### 数据库操作
-
-```python
-# 获取随机题目
-questions = get_random_questions(subject='语文', limit=10)
-
-# 记录答题
-record_answer(user_id, question_id, selected_option_id)
-
-# 更新排行榜
-update_leaderboard(user_id, mode='speed')
+```
+Quick QA/
+├── backend/                 # 后端代码（Flask + JWT）
+│   ├── app.py
+│   └── api/
+├── database/                # 数据库与脚本
+│   ├── quiz_app.db         # SQLite 数据库
+│   ├── database_schema.sql
+│   ├── extended_schema.sql
+│   ├── import_questions.py
+│   └── init_database.py
+├── frontend/            # 前端（Ant Design Vue + Vue3 + Vite）
+│   ├── dist/               # 生产构建产物（后端直接服务）
+│   ├── src/
+│   └── vite.config.ts
+├── requirements.txt
+└── 启动系统.sh
 ```
 
-## 🎯 测试用户
+## ✨ 功能概览
 
-系统预置了测试用户方便体验：
+- 速答模式：3s 预倒计时 + 60s 作答，即时红/绿反馈，结果总览 + 详情；
+- 学习模式：三次错误后自动高亮正确并显示详解；
+- 登录/注册、鉴权、路由守卫；
+- 首页诗词卡片与模式选择弹窗（AntD 样式）。
 
-- 用户名: `admin` 密码: `admin123`
-- 用户名: `test_user` 密码: `test123`
+## 🔧 开发调试（可选）
 
-## 🤝 贡献指南
+后端：
 
-欢迎提交 Issue 和 Pull Request 来改进系统：
+```bash
+cd backend && python3 app.py
+```
 
-1. Fork 项目
-2. 创建功能分支
-3. 提交更改
-4. 发起 Pull Request
+前端（开发服务器 + 代理）：
 
-## 📄 许可证
+```bash
+cd frontend && npm i && npm run dev
+```
 
-本项目仅供学习和研究使用。
+前端访问 `http://localhost:5173`，API 通过 Vite 代理到 `http://localhost:8000`。
 
-## 🎉 致谢
+## 📝 其他说明
 
-感谢使用快问快答古诗词答题系统！希望这个系统能为古诗词学习带来乐趣。
-
----
-
-**📞 如有问题，请查看 `docs/` 目录下的详细文档或提交 Issue。**
+- 后端已优先从 `frontend/dist` 提供前端构建产物（`/`、`/assets/*`）。
+- 旧版静态前端与脚本均已移除，避免混乱与重复。
+- 排行榜：每个用户仅展示其最佳成绩（速答按“正确数优先、用时更短”排序；学习按“学习题数优先、用时更长”排序）。
